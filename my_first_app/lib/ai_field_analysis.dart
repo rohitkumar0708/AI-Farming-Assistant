@@ -5,7 +5,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const String apiUrl = 'http://10.0.2.2:3000/analyze';
+const String apiUrl =
+    'https://ai-farming-assistant-n3s7.onrender.com/analyze';
 
 class AIFieldAnalysisScreen extends StatelessWidget {
   final bool hindi;
@@ -52,6 +53,9 @@ class AIFieldAnalysisScreen extends StatelessWidget {
               'soilImageMimeType': 'image/jpeg',
           }),
       );
+        print("API STATUS: ${response.statusCode}");
+        print("API RESPONSE: ${response.body}");
+        print("API URL: $apiUrl");
       if (!context.mounted) return;
       final result = jsonDecode(response.body);
 
