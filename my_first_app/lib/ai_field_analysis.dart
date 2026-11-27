@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-
+import 'crop_recommendations.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 
@@ -10,6 +10,7 @@ const String apiUrl =
 
 class AIFieldAnalysisScreen extends StatelessWidget {
   final bool hindi;
+  final Function(String, Map<String, dynamic>) onCropSelected;
   final Map<String, dynamic> farmerData;
   final Uint8List? soilImageBytes;
   final String currentLocation;
@@ -17,6 +18,7 @@ class AIFieldAnalysisScreen extends StatelessWidget {
 
   const AIFieldAnalysisScreen({
     super.key,
+    required this.onCropSelected,
     required this.hindi,
     required this.farmerData,
     this.soilImageBytes,
@@ -42,6 +44,7 @@ class AIFieldAnalysisScreen extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
            body: jsonEncode({
+              'language': hindi ? 'Hindi' : 'English',
               'farmerData': farmerData,
               'currentLocation': currentLocation,
               'weatherData': weatherData,
@@ -60,20 +63,21 @@ class AIFieldAnalysisScreen extends StatelessWidget {
       final result = jsonDecode(response.body);
 
       if (response.statusCode == 200 && result['success'] == true) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('AI Crop Recommendations'),
-            content: SingleChildScrollView(
-              child: Text(result['analysis'] ?? 'No analysis available'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
+           final List<Map<String, dynamic>> crops =
+            (result['crops'] as List)
+              .map((crop) => Map<String, dynamic>.from(crop))
+              .toList();
+
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+             builder: (context) => CropRecommendationsScreen(
+             hindi: hindi,
+             crops: crops,
+             onCropSelected: onCropSelected,
+           ),
+              
+         ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

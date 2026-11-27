@@ -1,6 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
+import 'my_crop_screen.dart';
+import 'news_screen.dart';
+import 'ai_scanner_screen.dart';
+import 'market_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
@@ -122,6 +126,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
+  String? selectedCropName;
+  Map<String, dynamic>? selectedCropData;
   String currentLocation = '';
 
   bool get hindi => widget.language == 'hi';
@@ -533,6 +539,13 @@ if (soilImageBytes != null) ...[
            soilImageBytes: soilImageBytes,
            currentLocation: currentLocation,
            weatherData: weatherData,
+          
+           onCropSelected: (name, data) {
+            setState(() {
+             selectedCropName = name;
+           selectedCropData = data;
+            });
+           },
           ),
         ),
       );
@@ -662,9 +675,19 @@ const SizedBox(height: 25),
         ],
       ),
 
-      body: selectedIndex == 0
-          ? buildHome()
-          : buildOtherSection(),
+    body: selectedIndex == 0
+    ? buildHome()
+    : selectedIndex == 1
+        ? MarketScreen(hindi: hindi)
+        : selectedIndex == 2
+            ? AIScannerScreen(hindi: hindi)
+            : selectedIndex == 3
+                ? NewsScreen(hindi: hindi)
+                : MyCropScreen(
+                    hindi: hindi,
+                    cropName: selectedCropName,
+                    cropData: selectedCropData,
+                   ),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
